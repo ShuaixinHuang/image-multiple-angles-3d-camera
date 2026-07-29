@@ -1,0 +1,17 @@
+# —— API 模式（默认，推荐）——
+# 只需以下 3 个包即可运行 app.py / app_zh.py / app_en.py
+gradio>=4.0
+dashscope>=1.20
+pillow>=9.0
+
+# —— 本地部署模式（可选，需要 NVIDIA GPU）——
+# 如需走 README 中的"方式二：本地部署"，请额外安装以下依赖：
+# git+https://github.com/huggingface/diffusers.git
+# transformers
+# accelerate
+# safetensors
+# sentencepiece
+# peft
+# torchvision
+# torchao==0.11.0
+# kernels
