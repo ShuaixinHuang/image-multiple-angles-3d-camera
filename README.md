@@ -388,4 +388,10 @@ MIT License — 可自由使用、修改、分发 ｜ Free to use, modify, and d
 
 ## 📈 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=Date)](https://star-history.com/#ShuaixinHuang/image-multiple-angles-3d-camera&Date)
+<a href="https://star-history.com/#ShuaixinHuang/image-multiple-angles-3d-camera&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=Date&theme=dark">
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=Date">
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=Date" />
+  </picture>
+</a>
