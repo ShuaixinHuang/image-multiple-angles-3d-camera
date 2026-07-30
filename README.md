@@ -42,7 +42,7 @@
 
 ## 🌱 项目缘起 / Origin
 
-市面上已有 AI 相机视角转换产品（如 MultipleAngles），却往往设有付费门槛。
+市面上已有 AI 相机视角转换产品（如 阿里的 **MultipleAngles**），却往往设有付费门槛。
 
 <img src="3.png" width="600" alt="MultipleAngles 定价方案 / Pricing" />
 
