@@ -28,7 +28,7 @@
 
 | 中文 | English |
 |:----:|:-------:|
-| [💡 创作原因](#-创作原因--motivation) | [💡 Motivation](#-创作原因--motivation) |
+| [🌱 项目缘起](#-项目缘起--origin) | [🌱 Origin](#-项目缘起--origin) |
 | [✨ 功能特点](#-功能特点--features) | [✨ Features](#-功能特点--features) |
 | [🎮 相机参数](#-相机参数--camera-parameters) | [🎮 Camera Parameters](#-相机参数--camera-parameters) |
 | [🚀 快速开始](#-快速开始--quick-start) | [🚀 Quick Start](#-快速开始--quick-start) |
@@ -40,20 +40,20 @@
 
 ---
 
-## 💡 创作原因 / Motivation
+## 🌱 项目缘起 / Origin
 
-阿里曾推出 AI 相机视角转换功能 **MultipleAngles**，体验后却发现需要付费才能使用。下方为其定价方案：
+市面上已有 AI 相机视角转换产品（如 MultipleAngles），却往往设有付费门槛。
 
 <img src="3.png" width="600" alt="MultipleAngles 定价方案 / Pricing" />
 
-于是，这个开源项目诞生了——**相同的 3D 相机视角控制能力，配合官方提供的免费 API 额度，实现一致的效果**。人人可用，完全开源。
+我们相信，**好的技术不该被价格挡在门外**。这个项目由此而来——基于官方免费 API 额度，复现了同样的 3D 相机视角控制与多角度生成能力。代码透明，自由部署，人人可用。
 
 <details>
 <summary>📖 English</summary>
 
-Alibaba once launched **MultipleAngles**, an AI camera viewpoint conversion feature. However, during testing I found it requires a paid subscription. The pricing plan is shown above.
+AI camera viewpoint conversion products (e.g. MultipleAngles) already exist — but they often sit behind a paywall.
 
-That's why this open-source project was born — **the same 3D camera viewpoint control, powered by the official free API quota, delivering identical results**. Open to everyone, fully open-source.
+We believe **great technology shouldn't be gated by price**. That's why this project exists: built on the official free API quota, it reproduces the same 3D camera viewpoint control and multi-angle generation. Transparent code, self-hostable, free for everyone.
 
 </details>
 
