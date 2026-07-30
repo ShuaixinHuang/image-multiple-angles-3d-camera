@@ -388,10 +388,10 @@ MIT License — 可自由使用、修改、分发 ｜ Free to use, modify, and d
 
 ## 📈 Star History
 
-<a href="https://star-history.com/#ShuaixinHuang/image-multiple-angles-3d-camera&Date">
+<a href="https://www.star-history.com/?repos=ShuaixinHuang%2Fimage-multiple-angles-3d-camera&type=date&legend=top-left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=Date&theme=dark">
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=Date">
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=date&theme=dark&legend=top-left&sealed_token=D450lytOwZFtnP_8I0BcyhyJw--p7owgj59QxGXpSFlCIy9_jCcZuOiOhWDZos_61tjY1xXJqo_HGOk5pqyvgPaOOydfjYx1XwYjwEDCVs3zUCYHdrckRw" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=date&legend=top-left&sealed_token=D450lytOwZFtnP_8I0BcyhyJw--p7owgj59QxGXpSFlCIy9_jCcZuOiOhWDZos_61tjY1xXJqo_HGOk5pqyvgPaOOydfjYx1XwYjwEDCVs3zUCYHdrckRw" />
+    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=date&legend=top-left&sealed_token=D450lytOwZFtnP_8I0BcyhyJw--p7owgj59QxGXpSFlCIy9_jCcZuOiOhWDZos_61tjY1xXJqo_HGOk5pqyvgPaOOydfjYx1XwYjwEDCVs3zUCYHdrckRw" />
   </picture>
 </a>
