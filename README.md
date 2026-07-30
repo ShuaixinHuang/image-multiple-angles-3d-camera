@@ -385,3 +385,7 @@ MIT License — 可自由使用、修改、分发 ｜ Free to use, modify, and d
 **作者 / Author:** AI指挥官Felix（全网同名）
 
 ⭐ 如果这个项目对你有帮助，欢迎 Star ｜ If this project helps you, please consider giving it a star
+
+## 📈 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ShuaixinHuang/image-multiple-angles-3d-camera&type=Date)](https://star-history.com/#ShuaixinHuang/image-multiple-angles-3d-camera&Date)
