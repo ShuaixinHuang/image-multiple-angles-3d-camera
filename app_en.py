@@ -7,6 +7,8 @@ All shared logic (3D widget, API call, helpers) is imported from core.py.
 
 import gradio as gr
 
+from generation_recipes import export_recipes, make_recipe, restore_recipe
+
 from core import (
     CameraControl3D,
     MAX_SEED,
@@ -22,6 +24,13 @@ from core import (
 
 # ====================== English strings ======================
 T = {
+    "recipe_title": "💾 Save / Reuse Generation Settings",
+    "recipe_help": "Successful generations record their settings here. Copy or download the JSON, then paste it back, choose an entry and apply. Batch entries follow gallery order. Use the same input image. Applying settings does not call the API and turns off seed randomization.",
+    "recipe_label": "Generation Settings JSON",
+    "recipe_entry": "Entry to apply (starting at 1)",
+    "recipe_apply": "↩️ Apply Settings to Controls",
+    "err_recipe": "Cannot apply settings: {}",
+    "err_seed": "Seed must be an integer between 0 and 2147483647",
     "title": "🎬 3D Camera Control · Multi-Angle Image Generation",
     "subtitle": "Upload an image → drag the 3D camera or use sliders → generate any viewpoint",
     "badge_api": "API Powered",
@@ -210,6 +219,19 @@ def build_ui():
                                 label=T["neg_label"], value=T["neg_default"], info=T["neg_info"]
                             )
 
+                        with gr.Accordion(T["recipe_title"], open=False):
+                            gr.Markdown(T["recipe_help"])
+                            recipe_json = gr.Code(
+                                value="", language="json", lines=8,
+                                label=T["recipe_label"], interactive=True,
+                                buttons=["copy", "download"],
+                            )
+                            recipe_entry = gr.Number(
+                                label=T["recipe_entry"], value=1,
+                                minimum=1, maximum=6, precision=0,
+                            )
+                            apply_recipe_btn = gr.Button(T["recipe_apply"])
+
             # ==================== Tab 2: History ====================
             with gr.Tab(T["tab_history"], id="history"):
                 gr.Markdown(f"# {T['history_page_title']}\n\n{T['history_page_desc']}")
@@ -249,7 +271,9 @@ def build_ui():
                     img, az, el, dist, sd, rs, sz, neg
                 )
             except gr.Error as e:
-                msg = str(e)
+                msg = str(e.message)
+                if msg.startswith("INVALID_SEED"):
+                    raise gr.Error(T["err_seed"])
                 if msg.startswith("IMAGE_REQUIRED"):
                     raise gr.Error(T["err_no_image"])
                 if msg.startswith("API_ERROR:"):
@@ -268,13 +292,18 @@ def build_ui():
                     view = T["view_desc"].get(k, view)
                     break
             info = T["info_template"].format(prompt=prompt, seed=new_seed, size=sz, view=view)
-            return url, new_seed, hist_list, info
+            recipe = make_recipe(az, el, dist, new_seed, sz, neg, prompt)
+            return url, new_seed, hist_list, info, export_recipes([recipe])
 
         def on_batch_run(img, keys, sd, rs, sz, neg, hist_list):
             try:
-                results, final_seed = batch_infer_camera_edit(img, keys, sd, rs, sz, neg)
+                results, final_seed, recipes = batch_infer_camera_edit(
+                    img, keys, sd, rs, sz, neg, include_recipes=True
+                )
             except gr.Error as e:
-                msg = str(e)
+                msg = str(e.message)
+                if msg.startswith("INVALID_SEED"):
+                    raise gr.Error(T["err_seed"])
                 if msg.startswith("IMAGE_REQUIRED"):
                     raise gr.Error(T["err_no_image"])
                 if msg.startswith("NO_PRESET"):
@@ -287,9 +316,25 @@ def build_ui():
                 raise
             # Accumulate history (batch results prepended)
             hist_list = list(hist_list) if hist_list else []
-            for url, key in results:
-                hist_list.insert(0, (url, f"{T['preset_names'].get(key, key)}"))
-            return results, hist_list, final_seed
+            gallery = []
+            for (url, key), recipe in zip(results, recipes):
+                caption = f"{T['preset_names'].get(key, key)} · seed={recipe['seed']}"
+                gallery.append((url, caption))
+                hist_list.insert(0, (url, caption))
+            return gallery, hist_list, final_seed, export_recipes(recipes)
+
+        def on_apply_recipe(text, entry):
+            try:
+                return restore_recipe(text, entry)
+            except ValueError as exc:
+                raise gr.Error(T["err_recipe"].format(exc)) from exc
+
+        apply_recipe_btn.click(
+            fn=on_apply_recipe,
+            inputs=[recipe_json, recipe_entry],
+            outputs=[camera_3d, azimuth_slider, elevation_slider, distance_slider,
+                     seed, randomize_seed, size, negative_prompt],
+        )
 
         # 3D → sliders
         camera_3d.change(
@@ -325,7 +370,7 @@ def build_ui():
         run_btn.click(
             fn=on_run,
             inputs=[image, azimuth_slider, elevation_slider, distance_slider, seed, randomize_seed, size, negative_prompt, history_state],
-            outputs=[result, seed, history_state, info_box],
+            outputs=[result, seed, history_state, info_box, recipe_json],
         ).then(
             fn=lambda h: h,
             inputs=[history_state],
@@ -336,7 +381,7 @@ def build_ui():
         batch_btn.click(
             fn=on_batch_run,
             inputs=[image, batch_check, seed, randomize_seed, size, negative_prompt, history_state],
-            outputs=[batch_gallery, history_state, seed],
+            outputs=[batch_gallery, history_state, seed, recipe_json],
         ).then(
             fn=lambda h: h,
             inputs=[history_state],

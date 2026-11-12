@@ -25,6 +25,8 @@ from PIL import Image
 import dashscope
 from dashscope import MultiModalConversation
 
+from generation_recipes import MODEL, make_recipe
+
 # DashScope 服务地址
 dashscope.base_http_api_url = 'https://dashscope.aliyuncs.com/api/v1'
 
@@ -127,6 +129,9 @@ def infer_camera_edit(
 
     if randomize_seed:
         seed = random.randint(0, MAX_SEED)
+    if isinstance(seed, bool) or not isinstance(seed, (int, float)) or not 0 <= seed <= MAX_SEED or int(seed) != seed:
+        raise gr.Error("INVALID_SEED")
+    seed = int(seed)
 
     pil_image = image.convert("RGB") if isinstance(image, Image.Image) else Image.open(image).convert("RGB")
     image_url = image_to_base64_url(pil_image)
@@ -144,7 +149,7 @@ def infer_camera_edit(
     try:
         response = MultiModalConversation.call(
             api_key=API_KEY,
-            model="qwen-image-edit-plus",
+            model=MODEL,
             messages=messages,
             stream=False,
             n=1,
@@ -152,6 +157,7 @@ def infer_camera_edit(
             negative_prompt=negative_prompt or " ",
             prompt_extend=True,
             size=size,
+            seed=seed,
         )
         if response.status_code == 200:
             result_url = response.output.choices[0].message.content[0]['image']
@@ -170,18 +176,23 @@ def batch_infer_camera_edit(
     randomize_seed: bool = True,
     size: str = "1024*1024",
     negative_prompt: str = " ",
+    *,
+    include_recipes: bool = False,
 ):
     """批量生成多个视角的图像。
 
-    返回: (results, final_seed)
+    返回: (results, final_seed)，include_recipes=True 时附加每张图的参数记录。
       results = [(image_url, caption), ...]
     """
     if image is None:
         raise gr.Error("IMAGE_REQUIRED")
     if not preset_keys:
         raise gr.Error("NO_PRESET")
+    if any(key not in PRESET_MAP for key in preset_keys):
+        raise gr.Error("NO_PRESET")
 
     results = []
+    recipes = []
     current_seed = seed
     for key in preset_keys:
         az, el, dist = PRESET_MAP[key]
@@ -189,6 +200,9 @@ def batch_infer_camera_edit(
             image, az, el, dist, current_seed, randomize_seed, size, negative_prompt
         )
         results.append((url, key))
+        recipes.append(make_recipe(az, el, dist, current_seed, size, negative_prompt, prompt))
+    if include_recipes:
+        return results, current_seed, recipes
     return results, current_seed
 
 

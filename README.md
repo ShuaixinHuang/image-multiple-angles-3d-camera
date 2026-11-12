@@ -9,7 +9,7 @@
 **一键生成任意相机视角的图像 · 中英双语 Web 应用**
 
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Gradio](https://img.shields.io/badge/Gradio-4.x+-FF7100?logo=gradio&logoColor=white)](https://www.gradio.app/)
+[![Gradio](https://img.shields.io/badge/Gradio-6.31+-FF7100?logo=gradio&logoColor=white)](https://www.gradio.app/)
 [![Three.js](https://img.shields.io/badge/Three.js-r128-000000?logo=threedotjs&logoColor=white)](https://threejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-22A75B?logo=opensourceinitiative&logoColor=white)](LICENSE)
 
@@ -265,6 +265,33 @@ pipe.set_adapters(["lightning", "angles"], adapter_weights=[1.0, 1.0])
 > 📌 距离通过下方滑块控制（连续微调，步长 0.05），不再使用 3D 手柄。
 > Distance is controlled via the slider (continuous, step 0.05), not a 3D handle.
 
+### 💾 保存与复用生成参数 / Save and reuse settings
+
+单次或批量生成成功后，展开「保存 / 复用生成参数」，复制或下载 JSON。
+记录包含每张图实际使用的种子、相机参数、尺寸、负向提示词和生成提示词；批量记录顺序与结果画廊一致。
+下次上传同一张输入图片，将 JSON 粘贴回来，选择记录编号并点击「应用参数到控件」。
+这一步只回填控件，不调用 API；种子随机化会自动关闭。确认后再点击生成。
+新的成功生成会替换参数面板内容，请先保存需要保留的记录。
+
+After a successful single or batch generation, expand **Save / Reuse Generation Settings**
+and copy or download the JSON. Each entry records its actual seed, camera settings,
+size, negative prompt and generated prompt, in gallery order. Upload the same input
+image, paste the JSON, select an entry and click **Apply Settings to Controls**.
+Applying does not call the API and disables seed randomization. Click Generate when ready.
+Save records you need before another successful generation replaces the panel.
+
+参数文件不包含 API Key、输入图片或临时结果地址。重新生成时提示词由相机参数重建。
+固定种子现在会真正传给 API，但模型更新及服务端的概率性生成意味着结果不保证逐像素一致。
+JSON excludes API keys, input images and temporary result URLs. Prompts are rebuilt
+from camera settings. Seeds are sent to the API; model updates and probabilistic
+generation mean identical pixels are not guaranteed.
+
+开发验证（模拟 API 响应，不产生模型调用费用）/ Tests with mocked API responses:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
 ## 🖼️ 效果展示 / Demo
 
 <div align="center">
@@ -281,6 +308,8 @@ image-multiple-angles-3d-camera/
 ├── 📄 app_zh.py           # 中文版入口 / Chinese UI entry
 ├── 📄 app_en.py           # 英文版入口 / English UI entry
 ├── 🧠 core.py             # 共享核心（3D 控件 / API / 工具 / CSS / JS）
+├── 📄 generation_recipes.py # 生成参数 JSON 导出、校验与回填 / Settings round-trip
+├── 🧪 tests/              # 种子、参数与中英文界面回归 / Regression tests
 ├── 📋 requirements.txt    # 依赖列表 / Dependencies
 ├── 📖 README.md           # 本文档 / This file
 ├── 🖼️ 1.png               # 示例图 / Demo image
