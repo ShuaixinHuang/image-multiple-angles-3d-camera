@@ -136,6 +136,11 @@ API 模式无需 GPU，仅 3 个 pip 包即可启动；可调种子与负向提�
 </tr>
 </table>
 
+### 相机控制一致性 / Consistent camera controls
+
+前端预览与 API 提示词共用相机参数定义。方位角按圆周距离吸附，350° 会回到 0° 前视；距离景别按同一组 0.6 / 1.0 / 1.8 参考点选择，避免预览为远景、生成却是中景。
+The browser preview and API prompt share camera definitions. Azimuth snaps around the full circle (350° → 0° front view), and both use the same 0.6 / 1.0 / 1.8 shot-distance reference points.
+
 ## 🎮 相机参数 / Camera Parameters
 
 | 参数 / Param | 范围 / Range | 说明 / Description |
@@ -308,6 +313,7 @@ image-multiple-angles-3d-camera/
 ├── 📄 app_zh.py           # 中文版入口 / Chinese UI entry
 ├── 📄 app_en.py           # 英文版入口 / English UI entry
 ├── 🧠 core.py             # 共享核心（3D 控件 / API / 工具 / CSS / JS）
+├── 📐 camera_geometry.py  # 前后端共用相机参数与吸附规则 / Shared camera geometry
 ├── 📄 generation_recipes.py # 生成参数 JSON 导出、校验与回填 / Settings round-trip
 ├── 🧪 tests/              # 种子、参数与中英文界面回归 / Regression tests
 ├── 📋 requirements.txt    # 依赖列表 / Dependencies

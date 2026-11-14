@@ -26,6 +26,10 @@ import dashscope
 from dashscope import MultiModalConversation
 
 from generation_recipes import MODEL, make_recipe
+from camera_geometry import (
+    AZIMUTH_MAP, ELEVATION_MAP, DISTANCE_MAP,
+    snap_to_nearest, build_camera_prompt, camera_math_js,
+)
 
 # DashScope 服务地址
 dashscope.base_http_api_url = 'https://dashscope.aliyuncs.com/api/v1'
@@ -37,31 +41,6 @@ API_KEY = os.environ.get(
 )
 
 MAX_SEED = np.iinfo(np.int32).max
-
-# —— 相机参数映射（送给模型的 prompt 必须是英文，与训练 LoRA 时一致）——
-AZIMUTH_MAP = {
-    0: "front view",
-    45: "front-right quarter view",
-    90: "right side view",
-    135: "back-right quarter view",
-    180: "back view",
-    225: "back-left quarter view",
-    270: "left side view",
-    315: "front-left quarter view",
-}
-
-ELEVATION_MAP = {
-    -30: "low-angle shot",
-    0: "eye-level shot",
-    30: "elevated shot",
-    60: "high-angle shot",
-}
-
-DISTANCE_MAP = {
-    0.6: "close-up",
-    1.0: "medium shot",
-    1.8: "wide shot",
-}
 
 # —— 快捷预设（azimuth, elevation, distance）——
 PRESETS = [
@@ -75,18 +54,6 @@ PRESETS = [
 
 # key → (az, el, dist) 反查表
 PRESET_MAP = {key: (az, el, dist) for key, az, el, dist in PRESETS}
-
-
-def snap_to_nearest(value, options):
-    return min(options, key=lambda x: abs(x - value))
-
-
-def build_camera_prompt(azimuth: float, elevation: float, distance: float) -> str:
-    """根据相机参数构建送给模型的 prompt（英文，与 LoRA 训练时一致）。"""
-    azimuth_snapped = snap_to_nearest(azimuth, list(AZIMUTH_MAP.keys()))
-    elevation_snapped = snap_to_nearest(elevation, list(ELEVATION_MAP.keys()))
-    distance_snapped = snap_to_nearest(distance, list(DISTANCE_MAP.keys()))
-    return f"<sks> {AZIMUTH_MAP[azimuth_snapped]} {ELEVATION_MAP[elevation_snapped]} {DISTANCE_MAP[distance_snapped]}"
 
 
 def image_to_base64_url(image: Image.Image) -> str:
@@ -263,25 +230,7 @@ CAMERA_3D_JS = r"""
         let elevationAngle = props.value?.elevation || 0;
         let distanceFactor = props.value?.distance || 1.0;
 
-        const azimuthSteps = [0, 45, 90, 135, 180, 225, 270, 315];
-        const elevationSteps = [-30, 0, 30, 60];
-        const distanceSteps = [0.6, 1.0, 1.4];
-
-        const azimuthNames = {
-            0: 'front view', 45: 'front-right quarter view', 90: 'right side view',
-            135: 'back-right quarter view', 180: 'back view', 225: 'back-left quarter view',
-            270: 'left side view', 315: 'front-left quarter view'
-        };
-        const elevationNames = { '-30': 'low-angle shot', '0': 'eye-level shot', '30': 'elevated shot', '60': 'high-angle shot' };
-        function distanceNameOf(d) {
-            if (d < 0.8) return 'close-up';
-            if (d < 1.2) return 'medium shot';
-            return 'wide shot';
-        }
-
-        function snapToNearest(value, steps) {
-            return steps.reduce((prev, curr) => Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev);
-        }
+        // CAMERA_GEOMETRY
 
         function createPlaceholderTexture() {
             const canvas = document.createElement('canvas');
@@ -447,7 +396,7 @@ CAMERA_3D_JS = r"""
             azimuthHandle.position.set(AZIMUTH_RADIUS * Math.sin(azRad), 0.05, AZIMUTH_RADIUS * Math.cos(azRad));
             elevationHandle.position.set(-0.8, ELEVATION_RADIUS * Math.sin(elRad) + CENTER.y, ELEVATION_RADIUS * Math.cos(elRad));
             distanceLineGeo.setFromPoints([cameraGroup.position.clone(), CENTER.clone()]);
-            const azSnap = snapToNearest(azimuthAngle, azimuthSteps);
+            const azSnap = snapAzimuth(azimuthAngle);
             const elSnap = snapToNearest(elevationAngle, elevationSteps);
             const prompt = '<sks> ' + azimuthNames[azSnap] + ' ' + elevationNames[String(elSnap)] + ' ' + distanceNameOf(distanceFactor);
             if (promptOverlay) promptOverlay.textContent = prompt;
@@ -456,7 +405,7 @@ CAMERA_3D_JS = r"""
         }
 
         function updatePropsAndTrigger() {
-            const azSnap = snapToNearest(azimuthAngle, azimuthSteps);
+            const azSnap = snapAzimuth(azimuthAngle);
             const elSnap = snapToNearest(elevationAngle, elevationSteps);
             props.value = { azimuth: azSnap, elevation: elSnap, distance: distanceFactor };
             trigger('change', props.value);
@@ -535,7 +484,7 @@ CAMERA_3D_JS = r"""
             if (dragTarget) {
                 dragTarget.material.emissiveIntensity = 0.5;
                 dragTarget.scale.setScalar(1);
-                const targetAz = snapToNearest(azimuthAngle, azimuthSteps);
+                const targetAz = snapAzimuth(azimuthAngle);
                 const targetEl = snapToNearest(elevationAngle, elevationSteps);
                 const startAz = azimuthAngle, startEl = elevationAngle;
                 const startTime = Date.now();
@@ -627,6 +576,8 @@ CAMERA_3D_JS = r"""
 })();
 """
 
+
+CAMERA_3D_JS = CAMERA_3D_JS.replace("// CAMERA_GEOMETRY", camera_math_js())
 
 def build_camera_3d_html_template():
     """3D 控件的 HTML 模板（含 prompt 浮层 + 角度读数）。"""
